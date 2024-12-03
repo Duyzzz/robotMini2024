@@ -1,0 +1,7 @@
+../Core/Src/SimpleKalmanFilter.c:84:6:SimpleKalmanFilter_Init	1
+../Core/Src/SimpleKalmanFilter.c:94:7:SimpleKalmanFilter_UpdateEstimate	1
+../Core/Src/SimpleKalmanFilter.c:105:6:SimpleKalmanFilter_SetMeasurementError	1
+../Core/Src/SimpleKalmanFilter.c:109:6:SimpleKalmanFilter_SetEstimateError	1
+../Core/Src/SimpleKalmanFilter.c:113:6:SimpleKalmanFilter_SetProcessNoise	1
+../Core/Src/SimpleKalmanFilter.c:118:7:SimpleKalmanFilter_GetKalmanGain	1
+../Core/Src/SimpleKalmanFilter.c:122:7:SimpleKalmanFilter_GetEstimateError	1

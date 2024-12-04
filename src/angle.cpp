@@ -1,8 +1,9 @@
 #include "angle.h"
 int currentAngle = 0;
 int readAngle(){
-    if(Serial2.available()){
-        String ang = Serial2.readStringUntil('}');
+    if(Serial3.available()){
+        String ang = Serial3.readStringUntil('}');
+        // Serial.println(ang);
         currentAngle = ang.toInt();
         return currentAngle;
     }else {
@@ -11,5 +12,5 @@ int readAngle(){
 }
 
 void angleConfig(){
-    Serial2.begin(115200);
+    Serial3.begin(115200);
 }

@@ -35,7 +35,6 @@
 #define pwm_m1 11
 #define mt 28
 #define mn 30
-
 /* for mega 2560 
 // cách chân pwm 
 #define pwm5 7

@@ -7,12 +7,14 @@
 class DigitalControl{
     private:
         uint8_t pin; 
-        bool act; // quyết định trạng thái action là 0 hay là 1 ( đảo đấy )
+        bool act; 
+        bool isActive = false;
     public: 
         DigitalControl(int pinn, bool actt):pin(pinn),act(actt){}
         void config(int type);
         void action();
         void stop();
+        bool currentState();
 }; 
 
 class Motor{

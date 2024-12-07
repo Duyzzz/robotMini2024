@@ -58,8 +58,8 @@ all: main-build
 main-build: angleReader.elf secondary-outputs
 
 # Tool invocations
-angleReader.elf: $(OBJS) $(USER_OBJS) D:\university\projects\robotMini2024\code\main\roboo\mpuCode\STM32F103C8TX_FLASH.ld
-	arm-none-eabi-gcc -o "angleReader.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\university\projects\robotMini2024\code\main\roboo\mpuCode\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="angleReader.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+angleReader.elf: $(OBJS) $(USER_OBJS) D:\university\projects\robotMini2024\code\main\roboo\mpuCode\testStmReading\duy\STM32F103C8TX_FLASH.ld
+	arm-none-eabi-gcc -o "angleReader.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\university\projects\robotMini2024\code\main\roboo\mpuCode\testStmReading\duy\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="angleReader.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

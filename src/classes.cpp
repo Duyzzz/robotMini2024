@@ -7,11 +7,15 @@ void DigitalControl :: config(int type){
 }
 void DigitalControl :: action(){
     digitalWrite(pin,act); 
+    isActive = true;
 }
 void DigitalControl :: stop(){
     digitalWrite(pin, !act); 
+    isActive = false;
 }
-
+bool DigitalControl :: currentState(){
+    return isActive;
+}
 
 
 

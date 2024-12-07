@@ -363,7 +363,7 @@ void loop()
   } // loop
 
 #endif
-const char calibrate_button = 23;
+const char calibrate_button = 36;
 signed int referenceAngle = 0;
 signed int totalAngle = 0;
 #ifdef READING
@@ -595,7 +595,7 @@ void setup() {
   // really up to you depending on your project)
   Serial.begin(115200);
   Serial2.begin(115200, 134217756U, 16, 17);
-  pinMode(calibrate_button, INPUT_PULLUP);
+  pinMode(calibrate_button, INPUT);
   // NOTE: 8MHz or slower host processors, like the Teensy @ 3.3V or Arduino
   // Pro Mini running at 3.3V, cannot handle this baud rate reliably due to
   // the baud timing being too misaligned with processor ticks. You must use
@@ -712,7 +712,6 @@ void loop() {
       Serial.print("\t");
       Serial.print(gy.z);
     */
-    Serial.println();
 
 #endif
 

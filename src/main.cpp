@@ -4,9 +4,7 @@
 void setup() {
     Serial.begin(115200);
     Serial1.begin(115200);
-    angleConfig();
-    motorConfig();
-    robotDirectionConfig();
+    handConfig();
 }
 
 void loop() {

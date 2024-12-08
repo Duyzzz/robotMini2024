@@ -8,6 +8,7 @@ unsigned int encoder = 0;
 #define UNLOCK 0
 #define COLUMN 1
 bool enableToggleState = true;
+bool startWaiting = false;
 bool choosingFire = UNLOCK;
 const char autoPin = 47;
 char robotDirectionSet = 's'; // stop;
@@ -21,7 +22,7 @@ bool stopOnce = true;
 bool enableBrake = false;
 bool earlyStop = false;
 uint8_t fireGunSpeed = 0;
-char command = 'w'; // w waiting for auto, n for hand control, a for automation.
+char command = 'n'; // w waiting for auto, n for hand control, a for automation.
 int threading = 0;
 bool config = true;
 bool waitingBall = false;
@@ -184,11 +185,109 @@ void automation(unsigned int *encoderVal)
             else
             {
                 goUp(0, 0);
-                startMidLoad();
-                loadBallToFire();
                 choosingShaking();
-                threading = 3;
-                break;
+                ps3();
+                if (button_l2)
+                {
+                    requireSoftStop = false;
+                    rotateLeft(200);
+                    stopOnce = true;
+                    robotDirectionSet = 'q'; // rotate left
+                }
+                else if (button_r2)
+                {
+                    rotateRight(200);
+                    requireSoftStop = false;
+                    stopOnce = true;
+                    robotDirectionSet = 'w'; // rotate right
+                }
+                else if (button_up)
+                {
+                    // goUp(255, 255);
+                    // Serial.println("up");
+                    go(250, 'u', &resetGo, &requireSoftStop, &robotCurrentSpeed);
+                    requireSoftStop = false;
+                    stopOnce = true;
+                    robotDirectionSet = 'u';
+                }
+                else if (button_down)
+                {
+                    requireSoftStop = false;
+                    // goDown(255, 255);
+                    stopOnce = true;
+                    robotDirectionSet = 'd';
+                    go(250, 'd', &resetGo, &requireSoftStop, &robotCurrentSpeed);
+                }
+                else if (button_left)
+                {
+                    requireSoftStop = false;
+                    // goLeft(255, 255);
+                    stopOnce = true;
+                    robotDirectionSet = 'l';
+                    go(250, 'l', &resetGo, &requireSoftStop, &robotCurrentSpeed);
+                }
+                else if (button_right)
+                {
+                    // goRight(255, 255);
+                    requireSoftStop = false;
+                    stopOnce = true;
+                    robotDirectionSet = 'r';
+                    go(250, 'r', &resetGo, &requireSoftStop, &robotCurrentSpeed);
+                }
+                else
+                {
+                    if (stopOnce)
+                    {
+                        requireSoftStop = true;
+                        softStopResetGo = true;
+                        resetGo = true;
+                        stopOnce = false;
+                        enableBrake = true;
+                        Serial.println("check stop once");
+                    }
+                    if (requireSoftStop)
+                    {
+                        if (robotDirectionSet == 'u')
+                        {
+                            // go(250, 'u', &softStopResetGo, &requireSoftStop, &robotCurrentSpeed);
+                            brake('u', &enableBrake);
+                        }
+                        else if (robotDirectionSet == 'd')
+                        {
+                            brake('d', &enableBrake);
+                            // go(250, 'd', &softStopResetGo, &requireSoftStop, &robotCurrentSpeed);
+                        }
+                        else if (robotDirectionSet == 'l')
+                        {
+                            brake('l', &enableBrake);
+                            // go(250, 'l', &softStopResetGo, &requireSoftStop, &robotCurrentSpeed);
+                        }
+                        else if (robotDirectionSet == 'r')
+                        {
+                            brake('r', &enableBrake);
+                            // go(250, 'r', &softStopResetGo, &requireSoftStop, &robotCurrentSpeed);
+                        }
+                        else if (robotDirectionSet == 'q')
+                        {
+                            goUp(0, 0);
+                        }
+                        else if (robotDirectionSet == 'w')
+                        {
+                            goUp(0, 0);
+                        }
+                    }
+                }
+                if (button_triangle)
+                {
+                    loadBallToFire();
+                    startMidLoad();
+                    loadBallToFire();
+                }
+                if (button_circle)
+                {
+                    threading = 3;
+                    break;
+                }
             }
         }
     }
@@ -386,6 +485,7 @@ void handInLoop()
         {
             if (enableToggleState)
             {
+                startMidLoad();
                 toggleTakeBallState();
                 enableToggleState = false;
             }
@@ -396,13 +496,15 @@ void handInLoop()
             if (waitingBall == true)
             {
                 // TODO
+                Serial.println("waiting to fire");
                 loadBallToFire();
+                startWaiting = true;
                 timeResetWaitingBall = millis();
             }
             else
             {
+                Serial.println("no");
                 delayStop = 'a';
-                startMidLoad();
             }
         }
         else if (button_l1)
@@ -477,27 +579,42 @@ void handInLoop()
 }
 void fireHold()
 {
-    if (digitalRead(ballSensor) == LOW)
+    if (digitalRead(ballSensor) == LOW && waitingBall == false)
     {
         if (delayStop == 'a')
         {
+            Serial.println("in a");
             timeDelayForStop = millis();
+            loadBallToFire();
             delayStop = 'b';
         }
     }
-    else if (millis() - timeResetWaitingBall > 900)
+    else if (delayStop == 'b')
     {
-        waitingBall = false;
-        stopLoadBallToFire();
-        startMidLoad();
-    }
-    if (delayStop == 'b')
-    {
-        if (millis() - timeDelayForStop > 50)
+        Serial.println("in b");
+        if (millis() - timeDelayForStop > 25)
         {
+            Serial.println("in c");
             stopMidLoad();
+            stopLoadBallToFire();
             waitingBall = true;
             delayStop = 'c';
+            timeDelayForStop = millis();
         }
+    }
+    else if (delayStop == 'c')
+    {
+        if (millis() - timeDelayForStop > 300)
+        {
+            delayStop = 'd';
+            Serial.println("in d");
+        }
+    }
+    else if (millis() - timeResetWaitingBall > 1200 && startWaiting == true)
+    {
+        stopLoadBallToFire();
+        startMidLoad();
+        Serial.println("stop delay, start midload");
+        startWaiting = false;
     }
 }

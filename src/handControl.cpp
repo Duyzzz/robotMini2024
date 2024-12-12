@@ -8,7 +8,6 @@ unsigned int encoder = 0;
 #define UNLOCK 0
 #define COLUMN 1
 bool enableToggleState = true;
-bool startWaiting = false;
 bool choosingFire = UNLOCK;
 const char autoPin = 47;
 char robotDirectionSet = 's'; // stop;
@@ -22,7 +21,7 @@ bool stopOnce = true;
 bool enableBrake = false;
 bool earlyStop = false;
 uint8_t fireGunSpeed = 0;
-char command = 'n'; // w waiting for auto, n for hand control, a for automation.
+char command = 'w'; // w waiting for auto, n for hand control, a for automation.
 int threading = 0;
 bool config = true;
 bool waitingBall = false;
@@ -382,6 +381,7 @@ void handInLoop()
     else if (command == 'n')
     {
         ps3();
+        choosingShaking();
         if (button_start)
         {
             command = 'w';
@@ -485,7 +485,6 @@ void handInLoop()
         {
             if (enableToggleState)
             {
-                startMidLoad();
                 toggleTakeBallState();
                 enableToggleState = false;
             }
@@ -496,15 +495,13 @@ void handInLoop()
             if (waitingBall == true)
             {
                 // TODO
-                Serial.println("waiting to fire");
                 loadBallToFire();
-                startWaiting = true;
                 timeResetWaitingBall = millis();
             }
             else
             {
-                Serial.println("no");
                 delayStop = 'a';
+                startMidLoad();
             }
         }
         else if (button_l1)
@@ -579,42 +576,27 @@ void handInLoop()
 }
 void fireHold()
 {
-    if (digitalRead(ballSensor) == LOW && waitingBall == false)
+    if (digitalRead(ballSensor) == LOW)
     {
         if (delayStop == 'a')
         {
-            Serial.println("in a");
             timeDelayForStop = millis();
-            loadBallToFire();
             delayStop = 'b';
         }
     }
-    else if (delayStop == 'b')
+    else if (millis() - timeResetWaitingBall > 900)
     {
-        Serial.println("in b");
-        if (millis() - timeDelayForStop > 25)
-        {
-            Serial.println("in c");
-            stopMidLoad();
-            stopLoadBallToFire();
-            waitingBall = true;
-            delayStop = 'c';
-            timeDelayForStop = millis();
-        }
-    }
-    else if (delayStop == 'c')
-    {
-        if (millis() - timeDelayForStop > 300)
-        {
-            delayStop = 'd';
-            Serial.println("in d");
-        }
-    }
-    else if (millis() - timeResetWaitingBall > 1200 && startWaiting == true)
-    {
+        waitingBall = false;
         stopLoadBallToFire();
         startMidLoad();
-        Serial.println("stop delay, start midload");
-        startWaiting = false;
+    }
+    if (delayStop == 'b')
+    {
+        if (millis() - timeDelayForStop > 50)
+        {
+            stopMidLoad();
+            waitingBall = true;
+            delayStop = 'c';
+        }
     }
 }
